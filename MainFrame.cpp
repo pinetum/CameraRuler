@@ -10,24 +10,24 @@ wxDEFINE_EVENT(wxEVT_COMMAND_VIDEO_UPDATE,          wxThreadEvent);
 
 
 
-#define COUNT_PTS           16;
+#define COUNT_PTS           16
 
-#define VX_PARLLEL_LINE1_P1     0;
-#define VX_PARLLEL_LINE1_P2     1;
-#define VX_PARLLEL_LINE2_P1     2;
-#define VX_PARLLEL_LINE2_P2     3;
-#define VY_PARLLEL_LINE1_P1     4;
-#define VY_PARLLEL_LINE1_P2     5;
-#define VY_PARLLEL_LINE2_P1     6;
-#define VY_PARLLEL_LINE2_P2     7;
-#define VZ_PARLLEL_LINE1_P1     8;
-#define VZ_PARLLEL_LINE1_P2     9;
-#define VZ_PARLLEL_LINE2_P1     10;
-#define VZ_PARLLEL_LINE2_P2     11;
-#define OBJECT_T                12;
-#define OBJECT_B                13;
-#define TARGET_T                14;
-#define TARGET_B                15;
+#define VX_PARLLEL_LINE1_P1     0
+#define VX_PARLLEL_LINE1_P2     1
+#define VX_PARLLEL_LINE2_P1     2
+#define VX_PARLLEL_LINE2_P2     3
+#define VY_PARLLEL_LINE1_P1     4
+#define VY_PARLLEL_LINE1_P2     5
+#define VY_PARLLEL_LINE2_P1     6
+#define VY_PARLLEL_LINE2_P2     7
+#define VZ_PARLLEL_LINE1_P1     8
+#define VZ_PARLLEL_LINE1_P2     9
+#define VZ_PARLLEL_LINE2_P1     10
+#define VZ_PARLLEL_LINE2_P2     11
+#define OBJECT_T                12
+#define OBJECT_B                13
+#define TARGET_T                14
+#define TARGET_B                15
 
 
 
@@ -37,10 +37,17 @@ MainFrame::MainFrame(wxWindow* parent)
     int statuWidth[4]   = { 250, 80, 40, 140};
 	m_statusBar->SetFieldsCount(4, statuWidth);
 	
+    for(int i =0; i < COUNT_PTS; i++)
+    {
+        cv::Point* pt = new cv::Point(0, 0);
+        m_points.push_back(pt);
+    }
+    
+    
     m_vThread = NULL;
     Center();
     m_bThreadRunning = false;
-    Maximize(true);
+    //Maximize(true);
     Bind(wxEVT_COMMAND_VIDEO_START, &MainFrame::OnVideoThreadStart, this);
     Bind(wxEVT_COMMAND_VIDEO_COMPLETED, &MainFrame::OnVideoThreadComplete, this);
     Bind(wxEVT_COMMAND_VIDEO_UPDATE, &MainFrame::OnVideoThreadUpdate, this);
@@ -48,6 +55,11 @@ MainFrame::MainFrame(wxWindow* parent)
 }
 MainFrame::~MainFrame()
 {
+    for(int i =0; i < COUNT_PTS; i++)
+    {
+        delete m_points[i];
+    }
+    m_points.clear();
     clearThread();
 }
 void MainFrame::clearThread()
@@ -120,11 +132,12 @@ void MainFrame::OnMouseLD(wxMouseEvent& event)
 	wxPoint pt ;
 	m_scrollWin->CalcUnscrolledPosition(pt1.x,pt1.y,&pt.x,&pt.y);
     showMessage(wxString::Format("[Mouse Click] %d,%d", pt.x, pt.y));
+    int pt_index = m_radioBoxPoints->GetSelection();
+    showMessage(wxString::Format("%d", pt_index));
+    m_points[pt_index]->x = pt.x;
+    m_points[pt_index]->y = pt.y;
     
-    
-    
-    
-    
+    updateLines();
 }
 void MainFrame::OnFileOpen(wxCommandEvent& event)
 {
@@ -212,4 +225,47 @@ double MainFrame::getObjectActualyHeight(){
 }
 void MainFrame::OnMenuFileOpen(wxCommandEvent& event)
 {
+    
+}
+void MainFrame::updateLines()
+{
+    cv::Mat drawedLineMat = m_img.clone();
+    drawStraightLine(drawedLineMat, *m_points[0], *m_points[1], cv::Scalar(255, 0, 0));
+    m_scrollWin->setImage(drawedLineMat);
+    //cv::Point3d 
+}
+void MainFrame::drawStraightLine(cv::Mat& img, cv::Point p1, cv::Point p2, cv::Scalar color)
+{
+    
+// 把線存成ax+by+c=0
+// 用外積可以找交點
+//  top_horizontal =    [0 1 0];
+//  left_vertical   =   [1 0 0];
+//  bottom_horizontal = [0 1 -image.rows];
+//  right_vertical =    [1 0 -image.cols];
+    
+    
+        if(p1.x == p2.x && p1.y == p2.y)
+            return;
+        cv::Point p, q;
+        // Check if the line is a vertical line because vertical lines don't have slope
+        if (p1.x != p2.x)
+        {
+                p.x = 0;
+                q.x = img.cols;
+                // Slope equation (y1 - y2) / (x1 - x2)
+                float m = (p1.y - p2.y) / (p1.x - p2.x);
+                // Line equation:  y = mx + b
+                float b = p1.y - (m * p1.x);
+                p.y = m * p.x + b;
+                q.y = m * q.x + b;
+        }
+        else
+        {
+                p.x = q.x = p2.x;
+                p.y = 0;
+                q.y = img.rows;
+        }
+
+        cv::line(img, p, q, color, 1);
 }
