@@ -50,7 +50,16 @@ void MainFrame::OnExit(wxCommandEvent& event)
     wxUnusedVar(event);
     Close();
 }
-
+void MainFrame::clearAll()
+{
+    m_radioBoxPoints->SetSelection(0);
+    for(int i =0; i < COUNT_PTS; i++)
+    {
+        m_points[i][0]=0.0;
+        m_points[i][1]=0.0;
+        m_points[i][2]=0.0;
+    }
+}
 void MainFrame::OnAbout(wxCommandEvent& event)
 {
     wxUnusedVar(event);
@@ -112,6 +121,10 @@ void MainFrame::OnMouseLD(wxMouseEvent& event)
     m_points[pt_index][1] = pt.y;
     m_points[pt_index][2] = 1;
     updateLines();
+    pt_index++;
+    if( pt_index == m_radioBoxPoints->GetRowCount())
+        pt_index = 0;
+    m_radioBoxPoints->SetSelection(pt_index);
 }
 void MainFrame::OnFileOpen(wxCommandEvent& event)
 {
@@ -124,15 +137,11 @@ void MainFrame::OnFileOpen(wxCommandEvent& event)
     }
     
     
-	for(int i =0; i < COUNT_PTS; i++)
-    {
-        m_points[i][0]=0;
-        m_points[i][1]=0;
-    }
+	
     
 	openDialog->Destroy();
     
-    
+    clearAll();
     
     
 }
@@ -211,8 +220,10 @@ void MainFrame::OnMenuFileOpen(wxCommandEvent& event)
 void MainFrame::updateLines()
 {
     cv::Mat drawedLineMat = m_img.clone();
+    getResult();
     drawPoints(drawedLineMat);
     drawStraightLine(drawedLineMat);
+    
     m_scrollWin->setImage(drawedLineMat);
     //cv::Point3d 
 }
@@ -239,18 +250,108 @@ void MainFrame::drawStraightLine(cv::Mat &img)
 //  left_vertical   =   [1 0 0];
 //  bottom_horizontal = [0 1 -image.rows];
 //  right_vertical =    [1 0 -image.cols];
+    cv::Vec3d top(0, 1, 0);
+    cv::Vec3d left(1, 0, 0);
+    cv::Vec3d btm(0, 1, m_img.rows*-1);
+    cv::Vec3d right(1, 0, m_img.cols*-1);
     
-    m_lines[VX_LINE1] = m_points[VX_PARLLEL_LINE1_P1].cross(m_points[VX_PARLLEL_LINE1_P2]);
-    m_lines[VX_LINE2] = m_points[VX_PARLLEL_LINE1_P3].cross(m_points[VX_PARLLEL_LINE1_P4]);
-    m_lines[VY_LINE1] = m_points[VY_PARLLEL_LINE1_P1].cross(m_points[VY_PARLLEL_LINE1_P2]);
-    m_lines[VY_LINE2] = m_points[VY_PARLLEL_LINE1_P3].cross(m_points[VY_PARLLEL_LINE1_P4]);
-    m_lines[VZ_LINE1] = m_points[VZ_PARLLEL_LINE1_P1].cross(m_points[VZ_PARLLEL_LINE1_P2]);
-    m_lines[VZ_LINE2] = m_points[VZ_PARLLEL_LINE1_P3].cross(m_points[VZ_PARLLEL_LINE1_P4]);
+    cv::RNG rng(33333);
     for(int i =0; i< COUNT_LINES; i++)
     {
+        cv::Point pt_line_begin, pt_line_end;
         if(m_lines[i][0] == 0 && m_lines[i][1] == 0 && m_lines[i][01] == 0 )
             break;
+        cv::Vec3d pt3d[4];
+        pt3d[0] = m_lines[i].cross(top);
+        pt3d[1] = m_lines[i].cross(btm);
+        pt3d[2] = m_lines[i].cross(left);
+        pt3d[3] = m_lines[i].cross(right);
+        
+        for(int j = 0; j<4; j++)
+        {
+            if(abs(pt3d[j][2])>0.0001)
+            {
+                pt3d[j][0] = pt3d[j][0]/pt3d[j][2];
+                pt3d[j][1] = pt3d[j][1]/pt3d[j][2];
+            }
+            //showMessage(wxString::Format("%f,%f,%f", pt3d[j][0], pt3d[j][1], pt3d[j][2]));
+        }
+        //上左
+        if( pt3d[0][0]<m_img.cols && pt3d[0][1]<m_img.rows && !pt3d[0][0] < 0 && !pt3d[0][1] <0)
+        {
+            pt_line_begin.x = pt3d[0][0];
+            pt_line_begin.y = pt3d[0][1];
+        }
+        else
+        {
+            pt_line_begin.x = pt3d[2][0];
+            pt_line_begin.y = pt3d[2][1];
+        }
+        //右下
+        if( pt3d[1][0]<m_img.cols && pt3d[1][1]<m_img.rows && !pt3d[1][0]< 0  && !pt3d[1][1] <0)
+        {
+            pt_line_end.x = pt3d[1][0];
+            pt_line_end.y = pt3d[1][1];
+        }
+        else
+        {
+            pt_line_end.x = pt3d[3][0];
+            pt_line_end.y = pt3d[3][1];
+        }
+        
+        cv::line(img, pt_line_begin, pt_line_end, cv::Scalar(rng.uniform(0,255), rng.uniform(0, 255), rng.uniform(0, 255)), 2);
+        
+        showMessage(wxString::Format("[Draw Line]%d, %d <--->  %d, %d", pt_line_begin.x, pt_line_begin.y, pt_line_end.x, pt_line_end.y));
+        
         
     }
         
+}
+void MainFrame::OnKeyDown(wxKeyEvent& event)
+{
+    //showMessage(wxString::Format("[Key Down] %d", event.GetKeyCode()));
+}
+void MainFrame::OnNextSelection(wxCommandEvent& event)
+{
+    int sel = m_radioBoxPoints->GetSelection()+1;
+    
+    if(sel == m_radioBoxPoints->GetRowCount())
+        sel = 0;
+    m_radioBoxPoints->SetSelection(sel);
+}
+void MainFrame::getResult()
+{
+    //算平行線
+    
+    m_lines[VX_LINE1] = m_points[VX_PARLLEL_LINE1_P1].cross(m_points[VX_PARLLEL_LINE1_P2]);
+    m_lines[VX_LINE2] = m_points[VX_PARLLEL_LINE2_P1].cross(m_points[VX_PARLLEL_LINE2_P2]);
+    m_lines[VY_LINE1] = m_points[VY_PARLLEL_LINE1_P1].cross(m_points[VY_PARLLEL_LINE1_P2]);
+    m_lines[VY_LINE2] = m_points[VY_PARLLEL_LINE2_P1].cross(m_points[VY_PARLLEL_LINE2_P2]);
+    m_lines[VZ_LINE1] = m_points[VZ_PARLLEL_LINE1_P1].cross(m_points[VZ_PARLLEL_LINE1_P2]);
+    m_lines[VZ_LINE2] = m_points[VZ_PARLLEL_LINE2_P1].cross(m_points[VZ_PARLLEL_LINE2_P2]);
+
+    //算消失點
+    m_points[VNISH_H1] = m_lines[VX_LINE1].cross(m_lines[VX_LINE2]);
+    m_points[VNISH_H2] = m_lines[VY_LINE1].cross(m_lines[VY_LINE2]);
+    m_points[VNISH_V] = m_lines[VZ_LINE1].cross(m_lines[VZ_LINE2]);
+    
+    for(int j = VNISH_H1; j<=VNISH_V; j++)
+    {
+        if(abs(m_points[j][2])>0.0001)
+        {
+            m_points[j][0] = m_points[j][0]/m_points[j][2];
+            m_points[j][1] = m_points[j][1]/m_points[j][2];
+            m_points[j][2] = 1;
+        }
+    }
+    m_staticTextVanishP1->SetLabel(wxString::Format("%d, %d",(int)m_points[VNISH_H1][0], (int)m_points[VNISH_H1][1]));
+    m_staticTextVanishP2->SetLabel(wxString::Format("%d, %d",(int)m_points[VNISH_H2][0], (int)m_points[VNISH_H2][1]));
+    
+    //算消失線
+    m_lines[VANIS_LINE] = m_points[VNISH_H1].cross(m_points[VNISH_H2]);
+    
+}
+void MainFrame::OnClickClearAll(wxCommandEvent& event)
+{
+    clearAll();
 }

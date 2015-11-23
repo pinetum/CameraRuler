@@ -35,7 +35,8 @@ class MainFrameBaseClass : public wxFrame
 {
 public:
     enum {
-        wxID_OPEN_FILE = 1001,
+        wxID_CLEAR_ALL = 1001,
+        wxID_OPEN_FILE = 1002,
     };
 protected:
     wxPanel* m_mainPanel;
@@ -60,6 +61,8 @@ protected:
     wxMenuItem* m_menuItem7;
     wxMenu* m_name8;
     wxMenuItem* m_menuItem9;
+    wxMenuItem* m_menuItem103;
+    wxMenuItem* m_menuItem107;
     wxMenu* m_menu21;
     wxMenuItem* m_menuItemCam;
     wxMenuItem* m_menuItemFile;
@@ -67,11 +70,14 @@ protected:
     wxStatusBar* m_statusBar;
 
 protected:
+    virtual void OnKeyDown(wxKeyEvent& event) { event.Skip(); }
     virtual void OnMouseLD(wxMouseEvent& event) { event.Skip(); }
     virtual void OnMouseMotion(wxMouseEvent& event) { event.Skip(); }
     virtual void OnFileOpen(wxCommandEvent& event) { event.Skip(); }
     virtual void OnExit(wxCommandEvent& event) { event.Skip(); }
     virtual void OnAbout(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnNextSelection(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnClickClearAll(wxCommandEvent& event) { event.Skip(); }
     virtual void OnMenuCamera(wxCommandEvent& event) { event.Skip(); }
     virtual void OnMenuFileOpen(wxCommandEvent& event) { event.Skip(); }
 

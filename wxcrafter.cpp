@@ -151,6 +151,12 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     m_menuItem9 = new wxMenuItem(m_name8, wxID_ABOUT, _("About..."), wxT(""), wxITEM_NORMAL);
     m_name8->Append(m_menuItem9);
     
+    m_menuItem103 = new wxMenuItem(m_name8, wxID_ANY, _("Next Point\tTab"), wxT(""), wxITEM_NORMAL);
+    m_name8->Append(m_menuItem103);
+    
+    m_menuItem107 = new wxMenuItem(m_name8, wxID_CLEAR_ALL, _("Clear All"), wxT(""), wxITEM_NORMAL);
+    m_name8->Append(m_menuItem107);
+    
     m_menu21 = new wxMenu();
     m_menuBar->Append(m_menu21, _("Video"));
     
@@ -164,6 +170,8 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     m_mainToolbar->SetToolBitmapSize(wxSize(16,16));
     
     m_mainToolbar->AddTool(wxID_OPEN_FILE, _("Tool Label"), wxArtProvider::GetBitmap(wxART_FILE_OPEN, wxART_TOOLBAR, wxSize(32, 32)), wxNullBitmap, wxITEM_NORMAL, wxT(""), wxT(""), NULL);
+    
+    m_mainToolbar->AddTool(wxID_CLEAR_ALL, _("Tool Label"), wxArtProvider::GetBitmap(wxART_CLOSE, wxART_TOOLBAR, wxDefaultSize), wxNullBitmap, wxITEM_NORMAL, wxT(""), wxT(""), NULL);
     m_mainToolbar->Realize();
     
     m_statusBar = new wxStatusBar(this, wxID_ANY, wxSTB_DEFAULT_STYLE);
@@ -188,11 +196,14 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     }
 #endif
     // Connect events
+    this->Connect(wxEVT_KEY_DOWN, wxKeyEventHandler(MainFrameBaseClass::OnKeyDown), NULL, this);
     m_scrollWin->Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(MainFrameBaseClass::OnMouseLD), NULL, this);
     m_scrollWin->Connect(wxEVT_MOTION, wxMouseEventHandler(MainFrameBaseClass::OnMouseMotion), NULL, this);
     this->Connect(m_menuItem81->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnFileOpen), NULL, this);
     this->Connect(m_menuItem7->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnExit), NULL, this);
     this->Connect(m_menuItem9->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnAbout), NULL, this);
+    this->Connect(m_menuItem103->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnNextSelection), NULL, this);
+    this->Connect(m_menuItem107->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnClickClearAll), NULL, this);
     this->Connect(m_menuItemCam->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnMenuCamera), NULL, this);
     this->Connect(m_menuItemFile->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnMenuFileOpen), NULL, this);
     
@@ -200,11 +211,14 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
 
 MainFrameBaseClass::~MainFrameBaseClass()
 {
+    this->Disconnect(wxEVT_KEY_DOWN, wxKeyEventHandler(MainFrameBaseClass::OnKeyDown), NULL, this);
     m_scrollWin->Disconnect(wxEVT_LEFT_DOWN, wxMouseEventHandler(MainFrameBaseClass::OnMouseLD), NULL, this);
     m_scrollWin->Disconnect(wxEVT_MOTION, wxMouseEventHandler(MainFrameBaseClass::OnMouseMotion), NULL, this);
     this->Disconnect(m_menuItem81->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnFileOpen), NULL, this);
     this->Disconnect(m_menuItem7->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnExit), NULL, this);
     this->Disconnect(m_menuItem9->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnAbout), NULL, this);
+    this->Disconnect(m_menuItem103->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnNextSelection), NULL, this);
+    this->Disconnect(m_menuItem107->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnClickClearAll), NULL, this);
     this->Disconnect(m_menuItemCam->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnMenuCamera), NULL, this);
     this->Disconnect(m_menuItemFile->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnMenuFileOpen), NULL, this);
     
