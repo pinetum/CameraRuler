@@ -4,7 +4,7 @@
 #include "VideoThread.h"
 #include <vector>
 
-#define COUNT_PTS               19
+#define COUNT_PTS               21
 
 #define VX_PARLLEL_LINE1_P1     0
 #define VX_PARLLEL_LINE1_P2     1
@@ -25,10 +25,10 @@
 #define VNISH_H1               16
 #define VNISH_H2               17
 #define VNISH_V                18
+#define ANS_ONVNISH             19
+#define ANS_ONOBJ               20
 
-
-
-#define COUNT_LINES             7
+#define COUNT_LINES             10
 
 #define VX_LINE1                 0
 #define VX_LINE2                 1
@@ -37,7 +37,9 @@
 #define VZ_LINE1                 4
 #define VZ_LINE2                 5
 #define VANIS_LINE               6
-
+#define ANS_T_LINE               7
+#define ANS_B_LINE               8
+#define OBJ_TB_LINE              9
 
 class MainFrame : public MainFrameBaseClass
 {
@@ -50,10 +52,12 @@ public:
     
     cv::Vec3d m_lines[COUNT_LINES];
     
+    void getAnswer();
     void getResult();
     void clearAll();
     bool m_bThreadRunning;
     void drawPoints(cv::Mat &img);
+    void rescalePt(cv::Vec3d &pt);
     void clearThread();
     void updateLines();
     void OnVideoThreadUpdate(wxThreadEvent& event);
@@ -65,6 +69,7 @@ public:
     void OnAbout(wxCommandEvent& event);
     double getObjectActualyHeight();
 protected:
+    virtual void OnTextctrlobjhTextUpdated(wxCommandEvent& event);
     virtual void OnClickClearAll(wxCommandEvent& event);
     virtual void OnNextSelection(wxCommandEvent& event);
     virtual void OnKeyDown(wxKeyEvent& event);

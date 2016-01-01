@@ -5,8 +5,11 @@
     <WorkspaceConfiguration Name="Debug" Selected="yes">
       <Project Name="cameraRuler" ConfigName="Debug"/>
     </WorkspaceConfiguration>
-    <WorkspaceConfiguration Name="Release" Selected="yes">
+    <WorkspaceConfiguration Name="Release" Selected="no">
       <Project Name="cameraRuler" ConfigName="Release"/>
+    </WorkspaceConfiguration>
+    <WorkspaceConfiguration Name="ubuntu" Selected="no">
+      <Project Name="cameraRuler" ConfigName="ubuntu"/>
     </WorkspaceConfiguration>
   </BuildMatrix>
 </CodeLite_Workspace>

@@ -48,25 +48,25 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     
     wxBoxSizer* boxSizer69 = new wxBoxSizer(wxVERTICAL);
     
-    boxSizer67->Add(boxSizer69, 0, wxALL|wxEXPAND, 5);
+    boxSizer67->Add(boxSizer69, 2, wxALL|wxEXPAND, 5);
     
     wxArrayString m_radioBoxPointsArr;
-    m_radioBoxPointsArr.Add(_("VX_PARLLEL_LINE1_P1"));
-    m_radioBoxPointsArr.Add(_("VX_PARLLEL_LINE1_P2"));
-    m_radioBoxPointsArr.Add(_("VX_PARLLEL_LINE2_P1"));
-    m_radioBoxPointsArr.Add(_("VX_PARLLEL_LINE2_P2"));
-    m_radioBoxPointsArr.Add(_("VY_PARLLEL_LINE1_P1"));
-    m_radioBoxPointsArr.Add(_("VY_PARLLEL_LINE1_P2"));
-    m_radioBoxPointsArr.Add(_("VY_PARLLEL_LINE2_P1"));
-    m_radioBoxPointsArr.Add(_("VY_PARLLEL_LINE2_P2"));
-    m_radioBoxPointsArr.Add(_("VZ_PARLLEL_LINE1_P1"));
-    m_radioBoxPointsArr.Add(_("VZ_PARLLEL_LINE1_P2"));
-    m_radioBoxPointsArr.Add(_("VZ_PARLLEL_LINE2_P1"));
-    m_radioBoxPointsArr.Add(_("VZ_PARLLEL_LINE2_P2"));
-    m_radioBoxPointsArr.Add(_("OBJECT_T"));
-    m_radioBoxPointsArr.Add(_("OBJECT_B"));
-    m_radioBoxPointsArr.Add(_("TARGET_T"));
-    m_radioBoxPointsArr.Add(_("TARGET_B"));
+    m_radioBoxPointsArr.Add(_("0VX_PARLLEL_LINE1_P2"));
+    m_radioBoxPointsArr.Add(_("1VX_PARLLEL_LINE1_P1"));
+    m_radioBoxPointsArr.Add(_("2VX_PARLLEL_LINE2_P1"));
+    m_radioBoxPointsArr.Add(_("3VX_PARLLEL_LINE2_P2"));
+    m_radioBoxPointsArr.Add(_("4VY_PARLLEL_LINE1_P1"));
+    m_radioBoxPointsArr.Add(_("5VY_PARLLEL_LINE1_P2"));
+    m_radioBoxPointsArr.Add(_("6VY_PARLLEL_LINE2_P1"));
+    m_radioBoxPointsArr.Add(_("7VY_PARLLEL_LINE2_P2"));
+    m_radioBoxPointsArr.Add(_("8VZ_PARLLEL_LINE1_P1"));
+    m_radioBoxPointsArr.Add(_("9VZ_PARLLEL_LINE1_P2"));
+    m_radioBoxPointsArr.Add(_("10VZ_PARLLEL_LINE2_P1"));
+    m_radioBoxPointsArr.Add(_("11VZ_PARLLEL_LINE2_P2"));
+    m_radioBoxPointsArr.Add(_("12OBJECT_T"));
+    m_radioBoxPointsArr.Add(_("13OBJECT_B"));
+    m_radioBoxPointsArr.Add(_("14TARGET_T"));
+    m_radioBoxPointsArr.Add(_("15TARGET_B"));
     m_radioBoxPoints = new wxRadioBox(m_mainPanel, wxID_ANY, _("Pin Points"), wxDefaultPosition, wxSize(-1,-1), m_radioBoxPointsArr, 1, wxRA_SPECIFY_COLS);
     m_radioBoxPoints->SetSelection(0);
     
@@ -102,7 +102,7 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     
     flexGridSizer71->Add(m_staticTextObjectTB, 0, wxALL, 5);
     
-    m_staticText99 = new wxStaticText(m_mainPanel, wxID_ANY, _("Target T,B"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_staticText99 = new wxStaticText(m_mainPanel, wxID_ANY, _("TargetOnObj T,B"), wxDefaultPosition, wxSize(-1,-1), 0);
     
     flexGridSizer71->Add(m_staticText99, 0, wxALL, 5);
     
@@ -199,6 +199,7 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     this->Connect(wxEVT_KEY_DOWN, wxKeyEventHandler(MainFrameBaseClass::OnKeyDown), NULL, this);
     m_scrollWin->Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(MainFrameBaseClass::OnMouseLD), NULL, this);
     m_scrollWin->Connect(wxEVT_MOTION, wxMouseEventHandler(MainFrameBaseClass::OnMouseMotion), NULL, this);
+    m_textCtrlOBJh->Connect(wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(MainFrameBaseClass::OnTextctrlobjhTextUpdated), NULL, this);
     this->Connect(m_menuItem81->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnFileOpen), NULL, this);
     this->Connect(m_menuItem7->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnExit), NULL, this);
     this->Connect(m_menuItem9->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnAbout), NULL, this);
@@ -214,6 +215,7 @@ MainFrameBaseClass::~MainFrameBaseClass()
     this->Disconnect(wxEVT_KEY_DOWN, wxKeyEventHandler(MainFrameBaseClass::OnKeyDown), NULL, this);
     m_scrollWin->Disconnect(wxEVT_LEFT_DOWN, wxMouseEventHandler(MainFrameBaseClass::OnMouseLD), NULL, this);
     m_scrollWin->Disconnect(wxEVT_MOTION, wxMouseEventHandler(MainFrameBaseClass::OnMouseMotion), NULL, this);
+    m_textCtrlOBJh->Disconnect(wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(MainFrameBaseClass::OnTextctrlobjhTextUpdated), NULL, this);
     this->Disconnect(m_menuItem81->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnFileOpen), NULL, this);
     this->Disconnect(m_menuItem7->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnExit), NULL, this);
     this->Disconnect(m_menuItem9->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnAbout), NULL, this);

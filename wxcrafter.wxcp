@@ -399,7 +399,7 @@
 															"m_children":	[]
 														}, {
 															"m_type":	4401,
-															"proportion":	0,
+															"proportion":	2,
 															"border":	5,
 															"gbSpan":	"1,1",
 															"gbPosition":	"0,0",
@@ -495,7 +495,7 @@
 																		}, {
 																			"type":	"multi-string",
 																			"m_label":	"Choices:",
-																			"m_value":	"VX_PARLLEL_LINE1_P1;VX_PARLLEL_LINE1_P2;VX_PARLLEL_LINE2_P1;VX_PARLLEL_LINE2_P2;VY_PARLLEL_LINE1_P1;VY_PARLLEL_LINE1_P2;VY_PARLLEL_LINE2_P1;VY_PARLLEL_LINE2_P2;VZ_PARLLEL_LINE1_P1;VZ_PARLLEL_LINE1_P2;VZ_PARLLEL_LINE2_P1;VZ_PARLLEL_LINE2_P2;OBJECT_T;OBJECT_B;TARGET_T;TARGET_B"
+																			"m_value":	"0VX_PARLLEL_LINE1_P2;1VX_PARLLEL_LINE1_P1;2VX_PARLLEL_LINE2_P1;3VX_PARLLEL_LINE2_P2;4VY_PARLLEL_LINE1_P1;5VY_PARLLEL_LINE1_P2;6VY_PARLLEL_LINE2_P1;7VY_PARLLEL_LINE2_P2;8VZ_PARLLEL_LINE1_P1;9VZ_PARLLEL_LINE1_P2;10VZ_PARLLEL_LINE2_P1;11VZ_PARLLEL_LINE2_P2;12OBJECT_T;13OBJECT_B;14TARGET_T;15TARGET_B"
 																		}, {
 																			"type":	"string",
 																			"m_label":	"Selection:",
@@ -1070,7 +1070,7 @@
 																				}, {
 																					"type":	"multi-string",
 																					"m_label":	"Label:",
-																					"m_value":	"Target T,B"
+																					"m_value":	"TargetOnObj T,B"
 																				}, {
 																					"type":	"string",
 																					"m_label":	"Wrap:",
@@ -1313,7 +1313,14 @@
 																					"m_label":	"Auto Complete Files:",
 																					"m_value":	false
 																				}],
-																			"m_events":	[],
+																			"m_events":	[{
+																					"m_eventName":	"wxEVT_COMMAND_TEXT_UPDATED",
+																					"m_eventClass":	"wxCommandEvent",
+																					"m_eventHandler":	"wxCommandEventHandler",
+																					"m_functionNameAndSignature":	"OnTextctrlobjhTextUpdated(wxCommandEvent& event)",
+																					"m_description":	"Respond to a wxEVT_COMMAND_TEXT_UPDATED event, generated when the text changes.\nNotice that this event will be sent when the text controls contents changes\n - whether this is due to user input or comes from the program itself\n(for example, if SetValue() is called); see ChangeValue() for a function which does not send this event.",
+																					"m_noBody":	false
+																				}],
 																			"m_children":	[]
 																		}, {
 																			"m_type":	4405,

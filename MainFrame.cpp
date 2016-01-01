@@ -16,7 +16,7 @@ wxDEFINE_EVENT(wxEVT_COMMAND_VIDEO_UPDATE,          wxThreadEvent);
 MainFrame::MainFrame(wxWindow* parent)
     : MainFrameBaseClass(parent)
 {
-    int statuWidth[4]   = { 250, 80, 40, 140};
+    int statuWidth[4]   = { 250, 120, 200, 140};
 	m_statusBar->SetFieldsCount(4, statuWidth);
 	
     
@@ -121,25 +121,23 @@ void MainFrame::OnMouseLD(wxMouseEvent& event)
     m_points[pt_index][1] = pt.y;
     m_points[pt_index][2] = 1;
     updateLines();
-    pt_index++;
-    if( pt_index == m_radioBoxPoints->GetRowCount())
-        pt_index = 0;
-    m_radioBoxPoints->SetSelection(pt_index);
+//    pt_index++;
+//    if( pt_index == m_radioBoxPoints->GetRowCount())
+//        pt_index = 0;
+//    m_radioBoxPoints->SetSelection(pt_index);
 }
 void MainFrame::OnFileOpen(wxCommandEvent& event)
 {
     wxString fileType = _("All suported graphic formats(*.jpg,*.bmp,*.jpeg,*.*.png)|*.jpg;*.bmp;*.jpeg;*.png;*.tif");
-	wxFileDialog* openDialog = new wxFileDialog(this,_("openFile"),wxEmptyString,wxEmptyString,fileType,wxFD_OPEN,wxDefaultPosition);
-	if(openDialog->ShowModal() == wxID_OK){
-		wxString pathName = openDialog->GetPath();
-		m_img = cv::imread(pathName.ToStdString());
+    wxFileDialog* openDialog = new wxFileDialog(this,_("openFile"),wxEmptyString,wxEmptyString,fileType,wxFD_OPEN,wxDefaultPosition);
+    if(openDialog->ShowModal() == wxID_OK){
+        wxString pathName = openDialog->GetPath();
+        m_img = cv::imread(pathName.ToStdString());
         m_scrollWin->setImage(m_img);
     }
     
     
-	
-    
-	openDialog->Destroy();
+    openDialog->Destroy();
     
     clearAll();
     
@@ -237,8 +235,9 @@ void MainFrame::drawPoints(cv::Mat &img)
         pt.y = m_points[i][1];
         if(pt.x == 0 && pt.y == 0)
             break;
-        cv::circle(img, pt, 2, cv::Scalar(rng.uniform(0,255), rng.uniform(0, 255), rng.uniform(0, 255)) ,2);
-        
+        cv::Scalar c = cv::Scalar(rng.uniform(0,255), rng.uniform(0, 255), rng.uniform(0, 255));
+        cv::circle(img, pt, 2,  c,2);
+        putText(img, std::string(wxString::Format("%d", i).mb_str()),  pt, cv::FONT_HERSHEY_DUPLEX , 1, c);
     }
 }
 void MainFrame::drawStraightLine(cv::Mat &img)
@@ -319,6 +318,15 @@ void MainFrame::OnNextSelection(wxCommandEvent& event)
         sel = 0;
     m_radioBoxPoints->SetSelection(sel);
 }
+void MainFrame::rescalePt(cv::Vec3d &pt)
+{
+    if(abs(pt[2])>0.0001)
+    {
+        pt[0] = pt[0]/pt[2];
+        pt[1] = pt[1]/pt[2];
+        pt[2] = 1;
+    }
+}
 void MainFrame::getResult()
 {
     //算平行線
@@ -337,21 +345,60 @@ void MainFrame::getResult()
     
     for(int j = VNISH_H1; j<=VNISH_V; j++)
     {
-        if(abs(m_points[j][2])>0.0001)
-        {
-            m_points[j][0] = m_points[j][0]/m_points[j][2];
-            m_points[j][1] = m_points[j][1]/m_points[j][2];
-            m_points[j][2] = 1;
-        }
+        rescalePt(m_points[j]);
+
     }
     m_staticTextVanishP1->SetLabel(wxString::Format("%d, %d",(int)m_points[VNISH_H1][0], (int)m_points[VNISH_H1][1]));
     m_staticTextVanishP2->SetLabel(wxString::Format("%d, %d",(int)m_points[VNISH_H2][0], (int)m_points[VNISH_H2][1]));
     
+    
     //算消失線
     m_lines[VANIS_LINE] = m_points[VNISH_H1].cross(m_points[VNISH_H2]);
+    
+    
+    //算柱子上的連線
+    m_lines[OBJ_TB_LINE] = m_points[OBJECT_B].cross(m_points[OBJECT_T]);
+    
+    
+    //算物品與柱子的底部連線
+    m_lines[ANS_B_LINE] = m_points[OBJECT_B].cross(m_points[TARGET_B]);
+        //先找到底部連線與消失線的交點
+    m_points[ANS_ONVNISH] = m_lines[VANIS_LINE].cross(m_lines[ANS_B_LINE]);
+    
+    rescalePt(m_points[ANS_ONVNISH]);
+    
+        //由消失線上交點連線經過物體頂端經過柱子
+    m_lines[ANS_T_LINE] = m_points[ANS_ONVNISH].cross(m_points[TARGET_T]);
+        //求出柱子上與上述連線的交點
+    m_points[ANS_ONOBJ] = m_lines[OBJ_TB_LINE].cross(m_lines[ANS_T_LINE]);
+    rescalePt( m_points[ANS_ONOBJ]);
+
+    m_staticTextObjectTB->SetLabel(wxString::Format("(%d, %d) (%d, %d)", 
+                                                    (int)m_points[OBJECT_T][0], (int)m_points[OBJECT_T][1],
+                                                    (int)m_points[OBJECT_B][0], (int)m_points[OBJECT_B][1]));
+    m_staticTextTargetTB->SetLabel(wxString::Format("(%d, %d) (%d, %d)", 
+                                                    (int)m_points[ANS_ONOBJ][0], (int)m_points[ANS_ONOBJ][1], 
+                                                    (int)m_points[OBJECT_B][0], (int)m_points[OBJECT_B][1]));
+    getAnswer();
+}
+void MainFrame::getAnswer()
+{
+    double d_objectH;
+    m_textCtrlOBJh->GetValue().ToDouble(&d_objectH);
+    
+    double d_obj_H, d_tarOnObj_H, d_ans;
+    d_obj_H = cv::norm(m_points[OBJECT_T], m_points[OBJECT_B]);
+    d_tarOnObj_H = cv::norm(m_points[ANS_ONOBJ], m_points[OBJECT_B]);
+    d_ans = d_tarOnObj_H/d_obj_H*d_objectH;
+    m_staticTextAnswer->SetLabel(wxString::Format("%lf", d_ans));
+    
     
 }
 void MainFrame::OnClickClearAll(wxCommandEvent& event)
 {
     clearAll();
+}
+void MainFrame::OnTextctrlobjhTextUpdated(wxCommandEvent& event)
+{
+    getAnswer();
 }

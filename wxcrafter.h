@@ -73,6 +73,7 @@ protected:
     virtual void OnKeyDown(wxKeyEvent& event) { event.Skip(); }
     virtual void OnMouseLD(wxMouseEvent& event) { event.Skip(); }
     virtual void OnMouseMotion(wxMouseEvent& event) { event.Skip(); }
+    virtual void OnTextctrlobjhTextUpdated(wxCommandEvent& event) { event.Skip(); }
     virtual void OnFileOpen(wxCommandEvent& event) { event.Skip(); }
     virtual void OnExit(wxCommandEvent& event) { event.Skip(); }
     virtual void OnAbout(wxCommandEvent& event) { event.Skip(); }
